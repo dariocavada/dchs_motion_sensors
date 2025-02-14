@@ -1,3 +1,8 @@
+## 2.0.1
+
+* updates the plugin to use the new FlutterPlugin API, replacing the deprecated Registrar API, 
+which has been completely removed in Flutter 3.28.x. thank you to [BenVae](https://github.com/BenVae)
+
 ## 2.0.0
 
 * update build gradle to 8.1.0 
