@@ -10,6 +10,17 @@ let TYPE_USER_ACCELEROMETER = 10
 let TYPE_ORIENTATION = 11
 let TYPE_ABSOLUTE_ORIENTATION = 15
 
+private func emitOnMainThread(_ eventSink: @escaping FlutterEventSink, value: Any) {
+    if Thread.isMainThread {
+        eventSink(value)
+        return
+    }
+
+    DispatchQueue.main.async {
+        eventSink(value)
+    }
+}
+
 
 // translate from https://github.com/flutter/plugins/tree/master/packages/sensors
 public class SwiftMotionSensorsPlugin: NSObject, FlutterPlugin {
@@ -120,7 +131,10 @@ class AccelerometerStreamHandler: NSObject, FlutterStreamHandler {
         if motionManager.isAccelerometerAvailable {
             motionManager.startAccelerometerUpdates(to: queue) { (data, error) in
                 if data != nil {
-                    events([-data!.acceleration.x * GRAVITY, -data!.acceleration.y * GRAVITY, -data!.acceleration.z * GRAVITY])
+                    emitOnMainThread(
+                        events,
+                        value: [-data!.acceleration.x * GRAVITY, -data!.acceleration.y * GRAVITY, -data!.acceleration.z * GRAVITY]
+                    )
                 }
             }
         }
@@ -145,7 +159,10 @@ class UserAccelerometerStreamHandler: NSObject, FlutterStreamHandler {
         if motionManager.isDeviceMotionAvailable {
             motionManager.startDeviceMotionUpdates(to: queue) { (data, error) in
                 if data != nil {
-                    events([-data!.userAcceleration.x * GRAVITY, -data!.userAcceleration.y * GRAVITY, -data!.userAcceleration.z * GRAVITY])
+                    emitOnMainThread(
+                        events,
+                        value: [-data!.userAcceleration.x * GRAVITY, -data!.userAcceleration.y * GRAVITY, -data!.userAcceleration.z * GRAVITY]
+                    )
                 }
             }
         }
@@ -170,7 +187,10 @@ class GyroscopeStreamHandler: NSObject, FlutterStreamHandler {
         if motionManager.isGyroAvailable {
             motionManager.startGyroUpdates(to: queue) { (data, error) in
                 if data != nil {
-                    events([data!.rotationRate.x, data!.rotationRate.y, data!.rotationRate.z])
+                    emitOnMainThread(
+                        events,
+                        value: [data!.rotationRate.x, data!.rotationRate.y, data!.rotationRate.z]
+                    )
                 }
             }
         }
@@ -196,7 +216,10 @@ class MagnetometerStreamHandler: NSObject, FlutterStreamHandler {
             motionManager.showsDeviceMovementDisplay = true
             motionManager.startDeviceMotionUpdates(using: CMAttitudeReferenceFrame.xArbitraryCorrectedZVertical, to: queue) { (data, error) in
                 if data != nil {
-                    events([data!.magneticField.field.x, data!.magneticField.field.y, data!.magneticField.field.z])
+                    emitOnMainThread(
+                        events,
+                        value: [data!.magneticField.field.x, data!.magneticField.field.y, data!.magneticField.field.z]
+                    )
                 }
             }
         }
@@ -230,9 +253,15 @@ class AttitudeStreamHandler: NSObject, FlutterStreamHandler {
                     // Let the y-axis point to magnetic north instead of the x-axis
                     if self.attitudeReferenceFrame == CMAttitudeReferenceFrame.xMagneticNorthZVertical {
                         let yaw = (data!.attitude.yaw + Double.pi + Double.pi / 2).truncatingRemainder(dividingBy: Double.pi * 2) - Double.pi
-                        events([yaw, data!.attitude.pitch, data!.attitude.roll])
+                        emitOnMainThread(
+                            events,
+                            value: [yaw, data!.attitude.pitch, data!.attitude.roll]
+                        )
                     } else {
-                        events([data!.attitude.yaw, data!.attitude.pitch, data!.attitude.roll])
+                        emitOnMainThread(
+                            events,
+                            value: [data!.attitude.yaw, data!.attitude.pitch, data!.attitude.roll]
+                        )
                     }
                 }
             }
