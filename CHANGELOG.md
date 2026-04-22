@@ -1,3 +1,11 @@
+## 2.0.2
+
+* add Swift Package Manager support for iOS
+* move the iOS implementation to Swift-only plugin registration
+* update the minimum Flutter and Dart SDK versions for SPM support
+* iOS consumers should use Flutter 3.41 or newer; older toolchains will not generate the Swift Package Manager-based iOS host correctly
+* if you update an existing example or app from the old CocoaPods-based iOS template, regenerate the `ios/` host app with `flutter create --platforms=ios .` before validating the plugin on iOS
+
 ## 2.0.1
 
 * updates the plugin to use the new FlutterPlugin API, replacing the deprecated Registrar API, 

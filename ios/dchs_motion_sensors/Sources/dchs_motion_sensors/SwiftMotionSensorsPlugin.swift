@@ -297,7 +297,12 @@ class ScreenOrientationStreamHandler: NSObject, FlutterStreamHandler {
     }
     
     @objc func orientationChanged() {
-        switch UIApplication.shared.statusBarOrientation {
+        let interfaceOrientation = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?
+            .interfaceOrientation
+
+        switch interfaceOrientation {
         case .portrait:
             eventSink!(0.0)
         case .portraitUpsideDown:

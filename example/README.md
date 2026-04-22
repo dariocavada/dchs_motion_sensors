@@ -1,16 +1,15 @@
 # example
 
-A new Flutter project.
+Example app for the `dchs_motion_sensors` plugin.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+From this directory you can run the sample app and verify the iOS Swift Package Manager integration for the plugin.
 
-A few resources to get you started if this is your first Flutter project:
+Useful commands:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- `flutter run`
+- `flutter test`
+- `flutter build ios --simulator`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If you need to regenerate the iOS host app with the current Flutter template, remove `ios/` and run `flutter create --platforms=ios --project-name example .`.

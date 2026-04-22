@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
@@ -237,7 +239,7 @@ class MotionSensors {
       isSensorAvailable(TYPE_ABSOLUTE_ORIENTATION);
 
   /// Change the update interval of sensor. The units are in microseconds.
-  Future setSensorUpdateInterval(int sensorType, int interval) async {
+  Future<void> setSensorUpdateInterval(int sensorType, int interval) async {
     await _methodChannel.invokeMethod('setSensorUpdateInterval',
         {"sensorType": sensorType, "interval": interval});
   }
@@ -268,82 +270,62 @@ class MotionSensors {
 
   /// A broadcast stream of events from the device accelerometer.
   Stream<AccelerometerEvent> get accelerometer {
-    if (_accelerometerEvents == null) {
-      _accelerometerEvents = _accelerometerEventChannel
-          .receiveBroadcastStream()
-          .map((dynamic event) =>
-              AccelerometerEvent.fromList(event.cast<double>()));
-    }
-    return _accelerometerEvents!;
+    return _accelerometerEvents ??= _accelerometerEventChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) =>
+            AccelerometerEvent.fromList(event.cast<double>()));
   }
 
   /// A broadcast stream of events from the device gyroscope.
   Stream<GyroscopeEvent> get gyroscope {
-    if (_gyroscopeEvents == null) {
-      _gyroscopeEvents = _gyroscopeEventChannel.receiveBroadcastStream().map(
-          (dynamic event) => GyroscopeEvent.fromList(event.cast<double>()));
-    }
-    return _gyroscopeEvents!;
+    return _gyroscopeEvents ??= _gyroscopeEventChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) => GyroscopeEvent.fromList(event.cast<double>()));
   }
 
   /// Events from the device accelerometer with gravity removed.
   Stream<UserAccelerometerEvent> get userAccelerometer {
-    if (_userAccelerometerEvents == null) {
-      _userAccelerometerEvents = _userAccelerometerEventChannel
-          .receiveBroadcastStream()
-          .map((dynamic event) =>
-              UserAccelerometerEvent.fromList(event.cast<double>()));
-    }
-    return _userAccelerometerEvents!;
+    return _userAccelerometerEvents ??= _userAccelerometerEventChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) =>
+            UserAccelerometerEvent.fromList(event.cast<double>()));
   }
 
   /// A broadcast stream of events from the device magnetometer.
   Stream<MagnetometerEvent> get magnetometer {
-    if (_magnetometerEvents == null) {
-      _magnetometerEvents = _magnetometerEventChannel
-          .receiveBroadcastStream()
-          .map((dynamic event) =>
-              MagnetometerEvent.fromList(event.cast<double>()));
-    }
-    return _magnetometerEvents!;
+    return _magnetometerEvents ??= _magnetometerEventChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) =>
+            MagnetometerEvent.fromList(event.cast<double>()));
   }
 
   /// The current orientation of the device.
   Stream<OrientationEvent> get orientation {
-    if (_orientationEvents == null) {
-      _orientationEvents =
-          _orientationChannel.receiveBroadcastStream().map((dynamic event) {
-        var orientation = OrientationEvent.fromList(event.cast<double>());
-        _initialOrientation ??= orientation;
-        // Change the initial yaw of the orientation to zero
-        var yaw = (orientation.yaw + math.pi - _initialOrientation!.yaw) %
-                (math.pi * 2) -
-            math.pi;
-        return OrientationEvent(yaw, orientation.pitch, orientation.roll);
-      });
-    }
-    return _orientationEvents!;
+    return _orientationEvents ??=
+        _orientationChannel.receiveBroadcastStream().map((dynamic event) {
+      var orientation = OrientationEvent.fromList(event.cast<double>());
+      _initialOrientation ??= orientation;
+      // Change the initial yaw of the orientation to zero
+      var yaw = (orientation.yaw + math.pi - _initialOrientation!.yaw) %
+              (math.pi * 2) -
+          math.pi;
+      return OrientationEvent(yaw, orientation.pitch, orientation.roll);
+    });
   }
 
   /// The current absolute orientation of the device.
   Stream<AbsoluteOrientationEvent> get absoluteOrientation {
-    if (_absoluteOrientationEvents == null) {
-      _absoluteOrientationEvents = _absoluteOrientationChannel
-          .receiveBroadcastStream()
-          .map((dynamic event) =>
-              AbsoluteOrientationEvent.fromList(event.cast<double>()));
-    }
-    return _absoluteOrientationEvents!;
+    return _absoluteOrientationEvents ??= _absoluteOrientationChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) =>
+            AbsoluteOrientationEvent.fromList(event.cast<double>()));
   }
 
   /// The rotation of the screen from its "natural" orientation.
   Stream<ScreenOrientationEvent> get screenOrientation {
-    if (_screenOrientationEvents == null) {
-      _screenOrientationEvents = _screenOrientationChannel
-          .receiveBroadcastStream()
-          .map((dynamic event) => ScreenOrientationEvent(event as double?));
-    }
-    return _screenOrientationEvents!;
+    return _screenOrientationEvents ??= _screenOrientationChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) => ScreenOrientationEvent(event as double?));
   }
 
   Matrix4 getRotationMatrix(Vector3 gravity, Vector3 geomagnetic) {
