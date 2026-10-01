@@ -57,7 +57,10 @@ public class MotionSensorsPlugin : FlutterPlugin, MethodChannel.MethodCallHandle
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "isSensorAvailable" -> result.success(sensorManager!!.getSensorList(call.arguments as Int).isNotEmpty())
-      "setSensorUpdateInterval" -> setSensorUpdateInterval(call.argument<Int>("sensorType")!!, call.argument<Int>("interval")!!)
+      "setSensorUpdateInterval" -> {
+        setSensorUpdateInterval(call.argument<Int>("sensorType")!!, call.argument<Int>("interval")!!)
+        result.success(null)
+      }
       else -> result.notImplemented()
     }
   }

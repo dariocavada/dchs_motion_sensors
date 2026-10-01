@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:dchs_motion_sensors/dchs_motion_sensors.dart';
@@ -14,6 +16,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
   final Vector3 _accelerometer = Vector3.zero();
   final Vector3 _gyroscope = Vector3.zero();
   final Vector3 _magnetometer = Vector3.zero();
@@ -28,48 +31,74 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    motionSensors.gyroscope.listen((GyroscopeEvent event) {
-      setState(() {
-        _gyroscope.setValues(event.x, event.y, event.z);
-      });
-    });
-    motionSensors.accelerometer.listen((AccelerometerEvent event) {
-      setState(() {
-        _accelerometer.setValues(event.x, event.y, event.z);
-      });
-    });
-    motionSensors.userAccelerometer.listen((UserAccelerometerEvent event) {
-      setState(() {
-        _userAaccelerometer.setValues(event.x, event.y, event.z);
-      });
-    });
-    motionSensors.magnetometer.listen((MagnetometerEvent event) {
-      setState(() {
-        _magnetometer.setValues(event.x, event.y, event.z);
-        final matrix =
-            motionSensors.getRotationMatrix(_accelerometer, _magnetometer);
-        _absoluteOrientation2.setFrom(motionSensors.getOrientation(matrix));
-      });
-    });
-    motionSensors.isOrientationAvailable().then((available) {
-      if (available) {
-        motionSensors.orientation.listen((OrientationEvent event) {
-          setState(() {
-            _orientation.setValues(event.yaw, event.pitch, event.roll);
-          });
+    _subscriptions.add(
+      motionSensors.gyroscope.listen((GyroscopeEvent event) {
+        setState(() {
+          _gyroscope.setValues(event.x, event.y, event.z);
         });
+      }),
+    );
+    _subscriptions.add(
+      motionSensors.accelerometer.listen((AccelerometerEvent event) {
+        setState(() {
+          _accelerometer.setValues(event.x, event.y, event.z);
+        });
+      }),
+    );
+    _subscriptions.add(
+      motionSensors.userAccelerometer.listen((UserAccelerometerEvent event) {
+        setState(() {
+          _userAaccelerometer.setValues(event.x, event.y, event.z);
+        });
+      }),
+    );
+    _subscriptions.add(
+      motionSensors.magnetometer.listen((MagnetometerEvent event) {
+        setState(() {
+          _magnetometer.setValues(event.x, event.y, event.z);
+          final matrix = motionSensors.getRotationMatrix(
+            _accelerometer,
+            _magnetometer,
+          );
+          _absoluteOrientation2.setFrom(motionSensors.getOrientation(matrix));
+        });
+      }),
+    );
+    motionSensors.isOrientationAvailable().then((available) {
+      if (available && mounted) {
+        _subscriptions.add(
+          motionSensors.orientation.listen((OrientationEvent event) {
+            setState(() {
+              _orientation.setValues(event.yaw, event.pitch, event.roll);
+            });
+          }),
+        );
       }
     });
-    motionSensors.absoluteOrientation.listen((AbsoluteOrientationEvent event) {
-      setState(() {
-        _absoluteOrientation.setValues(event.yaw, event.pitch, event.roll);
-      });
-    });
-    motionSensors.screenOrientation.listen((ScreenOrientationEvent event) {
-      setState(() {
-        _screenOrientation = event.angle;
-      });
-    });
+    _subscriptions.add(
+      motionSensors.absoluteOrientation.listen((
+        AbsoluteOrientationEvent event,
+      ) {
+        setState(() {
+          _absoluteOrientation.setValues(event.yaw, event.pitch, event.roll);
+        });
+      }),
+    );
+    _subscriptions.add(
+      motionSensors.screenOrientation.listen((ScreenOrientationEvent event) {
+        setState(() {
+          _screenOrientation = event.angle;
+        });
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      unawaited(subscription.cancel());
+    }
+    super.dispose();
   }
 
   void setUpdateInterval(int? groupValue) {
@@ -99,9 +128,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Motion Sensors'),
-        ),
+        appBar: AppBar(title: const Text('Motion Sensors')),
         body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

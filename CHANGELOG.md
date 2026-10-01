@@ -1,3 +1,24 @@
+## 3.0.0
+
+### Breaking changes
+
+* require Flutter 3.47 or newer and Dart 3.13 or newer, replacing the previous Flutter 3.41 / Dart 3.11 minimums
+* migrate Android Kotlin compiler configuration to `kotlin.compilerOptions`; Kotlin 1.8 hosts are no longer supported
+* Android hosts using AGP 8 or disabling built-in Kotlin must supply a compatible Kotlin Gradle Plugin (2.2.20 or newer); the plugin no longer pins its own AGP / Kotlin classpaths
+* update `vector_math` to `^2.4.3`
+
+### Fixes and updates
+
+* fix the `kotlin-android` configuration failure on AGP 9 with built-in Kotlin enabled
+* apply the host's Kotlin plugin only when built-in Kotlin is unavailable or explicitly disabled
+* set the Android namespace directly and keep Java / Kotlin plugin bytecode targeting JVM 1.8
+* update the example to AGP 9.1.1, Gradle 9.3.1 and Kotlin 2.4.20, with built-in Kotlin enabled
+* update the example's `cupertino_icons` to 2.0.0 and `flutter_lints` to 6.0.0
+* update the example's iOS host to the Flutter 3.47 Swift Package Manager wiring and iOS 15 deployment target
+* cancel the example's sensor subscriptions on disposal and ignore late orientation availability responses
+* complete the native Android / iOS response for `setSensorUpdateInterval` so awaited interval changes no longer hang
+* add Android compilation checks, example lifecycle tests and physical-device sensor integration tests
+
 ## 2.0.2
 
 * add Swift Package Manager support for iOS

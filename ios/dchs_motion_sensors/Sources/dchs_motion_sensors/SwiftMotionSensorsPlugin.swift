@@ -77,6 +77,7 @@ public class SwiftMotionSensorsPlugin: NSObject, FlutterPlugin {
         case "setSensorUpdateInterval":
             let arguments = call.arguments as! NSDictionary
             setSensorUpdateInterval(arguments["sensorType"] as! Int, arguments["interval"] as! Int)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
